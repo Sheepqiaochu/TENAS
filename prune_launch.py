@@ -3,14 +3,14 @@ import time
 import argparse
 
 # TODO please configure TORCH_HOME and data_paths before running
-TORCH_HOME = "/ssd1/chenwy"
+TORCH_HOME = "/data/users/yangqiancheng/datasets/"
 # Path that contains the nas-bench-201 database. If you only want to run on NASNET (i.e.
 # DARTS) search space, then just leave it empty
 data_paths = {
-    "cifar10": "/ssd1/cifar.python",
-    "cifar100": "/ssd1/cifar.python",
-    "ImageNet16-120": "/ssd1/ImageNet16",
-    "imagenet-1k": "/ssd2/chenwy/imagenet_final",
+    "cifar10": "/data/users/yangqiancheng/datasets/",
+    "cifar100": "/data/users/yangqiancheng/datasets/",
+    "ImageNet16-120": "/data/users/yangqiancheng/datasets/",
+    "imagenet-1k": "/data/users/yangqiancheng/datasets/imagenet-data",
 }
 
 parser = argparse.ArgumentParser("TENAS_launch")
