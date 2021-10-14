@@ -123,3 +123,4 @@ scripts-search/l2s-algos
 TEMP-L.sh
 
 .nfs00*
+venv
