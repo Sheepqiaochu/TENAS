@@ -53,7 +53,7 @@ core_cmd = "CUDA_VISIBLE_DEVICES={gpuid} OMP_NUM_THREADS=4 python ./prune_tenas.
 --data_path {data_path} \
 --search_space_name {space} \
 --super_type {super_type} \
---arch_nas_dataset {TORCH_HOME}/NAS-Bench-201-v1_0-e61699.pth \
+--arch_nas_dataset {TORCH_HOME}/NAS-Bench-201-v1_1-096897.pth \
 --track_running_stats 1 \
 --workers 0 --rand_seed {seed} \
 --timestamp {timestamp} \
