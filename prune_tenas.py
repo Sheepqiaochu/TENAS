@@ -199,7 +199,7 @@ def prune_func_rank(xargs, arch_parameters, model_config, model_config_thin, loa
 
 def prune_func_rank_group(xargs, arch_parameters, model_config, model_config_thin, loader, lrc_model, search_space,
                           edge_groups=[(0, 2), (2, 5), (5, 9), (9, 14)], num_per_group=2, precision=10):
-    # arch_parameters now has three dim: cell_type, edge, op
+    # arch_parameters now has three dim: cell_type, edge, op(operation)
     network_origin = get_cell_based_tiny_net(model_config).cuda().train()
     init_model(network_origin, xargs.init)
     network_thin_origin = get_cell_based_tiny_net(model_config_thin).cuda().train()
@@ -344,9 +344,9 @@ def is_single_path(network):
 def main(xargs):
     PID = os.getpid()
     assert torch.cuda.is_available(), 'CUDA is not available.'
-    torch.backends.cudnn.enabled = True
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.enabled = True  # Use non-deterministic algorithms if True
+    torch.backends.cudnn.benchmark = False  # accelerate fixed network if True
+    torch.backends.cudnn.deterministic = True  # fix seed and result
     prepare_seed(xargs.rand_seed)
 
     if xargs.timestamp == 'none':
@@ -354,7 +354,7 @@ def main(xargs):
 
     train_data, valid_data, xshape, class_num = get_datasets(xargs.dataset, xargs.data_path, -1)
 
-    ##### config & logging #####
+    # config & logging
     config = edict()
     config.class_num = class_num
     config.xshape = xshape
@@ -365,7 +365,6 @@ def main(xargs):
                      "/{:}/seed{:}".format(xargs.timestamp, xargs.rand_seed)
     config.save_dir = xargs.save_dir
     logger = prepare_logger(xargs)
-    ###############
 
     if xargs.dataset != 'imagenet-1k':
         search_loader, train_loader, valid_loader = get_nas_search_loaders(train_data, valid_data, xargs.dataset,
@@ -432,8 +431,7 @@ def main(xargs):
 
     network = network.cuda()
 
-    genotypes = {};
-    genotypes['arch'] = {-1: network.genotype()}
+    genotypes = {'arch': {-1: network.genotype()}}
 
     arch_parameters_history = []
     arch_parameters_history_npy = []
