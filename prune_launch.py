@@ -14,7 +14,7 @@ data_paths = {
 }
 
 parser = argparse.ArgumentParser("TENAS_launch")
-parser.add_argument('--gpu', default=0, type=int,  nargs='+', help='use gpu with cuda number')
+parser.add_argument('--gpu', type=int,  nargs='+', help='use gpu with cuda number')
 parser.add_argument('--space', default='nas-bench-201', type=str, choices=['nas-bench-201', 'darts'],
                     help='which nas search space to use')
 parser.add_argument('--dataset', default='cifar100', type=str,
