@@ -33,7 +33,7 @@ def get_ntk_n(xloader, networks, recalbn=0, train_mode=False, num_batch=-1):
     ######
     grads = [[] for _ in range(len(networks))]
     for i, (inputs, targets) in enumerate(xloader):
-        if num_batch > 0 and i >= num_batch: break
+        if 0 < num_batch <= i: break
         inputs = inputs.cuda(device=device, non_blocking=True)
         for net_idx, network in enumerate(networks):
             network.zero_grad()
@@ -42,7 +42,7 @@ def get_ntk_n(xloader, networks, recalbn=0, train_mode=False, num_batch=-1):
             if isinstance(logit, tuple):
                 logit = logit[1]  # 201 networks: return features and logits
             for _idx in range(len(inputs_)):
-                logit[_idx:_idx+1].backward(torch.ones_like(logit[_idx:_idx+1]), retain_graph=True)
+                logit[_idx:_idx + 1].backward(torch.ones_like(logit[_idx:_idx + 1]), retain_graph=True)
                 grad = []
                 for name, W in network.named_parameters():
                     if 'weight' in name and W.grad is not None:
