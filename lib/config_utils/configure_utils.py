@@ -70,34 +70,47 @@ def load_config(path, extra, logger=None):
 def configure2str(config, xpath=None):
     if not isinstance(config, dict):
         config = config._asdict()
+
     def cstring(x):
         return "\"{:}\"".format(x)
+
     def gtype(x):
         if isinstance(x, list): x = x[0]
-        if isinstance(x, str)  : return 'str'
-        elif isinstance(x, bool) : return 'bool'
-        elif isinstance(x, int): return 'int'
-        elif isinstance(x, float): return 'float'
-        elif x is None           : return 'none'
-        else: raise ValueError('invalid : {:}'.format(x))
+        if isinstance(x, str):
+            return 'str'
+        elif isinstance(x, bool):
+            return 'bool'
+        elif isinstance(x, int):
+            return 'int'
+        elif isinstance(x, float):
+            return 'float'
+        elif x is None:
+            return 'none'
+        else:
+            raise ValueError('invalid : {:}'.format(x))
+
     def cvalue(x, xtype):
-        if isinstance(x, list): is_list = True
+        if isinstance(x, list):
+            is_list = True
         else:
             is_list, x = False, [x]
         temps = []
         for temp in x:
-            if xtype == 'bool'  : temp = cstring(int(temp))
-            elif xtype == 'none': temp = cstring('None')
-            else                : temp = cstring(temp)
-            temps.append( temp )
+            if xtype == 'bool':
+                temp = cstring(int(temp))
+            elif xtype == 'none':
+                temp = cstring('None')
+            else:
+                temp = cstring(temp)
+            temps.append(temp)
         if is_list:
-            return "[{:}]".format( ', '.join( temps ) )
+            return "[{:}]".format(', '.join(temps))
         else:
             return temps[0]
 
     xstrings = []
     for key, value in config.items():
-        xtype  = gtype(value)
+        xtype = gtype(value)
         string = '  {:20s} : [{:8s}, {:}]'.format(cstring(key), cstring(xtype), cvalue(value, xtype))
         xstrings.append(string)
     Fstring = '{\n' + ',\n'.join(xstrings) + '\n}'

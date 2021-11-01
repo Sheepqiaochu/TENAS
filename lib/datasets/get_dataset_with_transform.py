@@ -178,7 +178,8 @@ def get_nas_search_loaders(train_data, valid_data, dataset, config_root, batch_s
         batch, test_batch = batch_size, batch_size
     if dataset == 'cifar10':
         cifar_split = load_config('{:}/cifar-split.txt'.format(config_root), None, None)
-        train_split, valid_split = cifar_split.train, cifar_split.valid  # search over the proposed training and validation set
+        # search over the proposed training and validation set
+        train_split, valid_split = cifar_split.train, cifar_split.valid
         # To split data
         xvalid_data = deepcopy(train_data)
         if hasattr(xvalid_data, 'transforms'):  # to avoid a print issue

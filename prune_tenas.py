@@ -344,7 +344,7 @@ def is_single_path(network):
 def main(xargs):
     PID = os.getpid()
     assert torch.cuda.is_available(), 'CUDA is not available.'
-    torch.backends.cudnn.enabled = True  # Use non-deterministic algorithms ifo True
+    torch.backends.cudnn.enabled = True  # Use non-deterministic algorithms if True
     torch.backends.cudnn.benchmark = False  # accelerate fixed network if True
     torch.backends.cudnn.deterministic = True  # fix seed and result
     prepare_seed(xargs.rand_seed)
