@@ -1,3 +1,5 @@
+import pdb
+
 import numpy as np
 import torch
 
@@ -57,4 +59,5 @@ def get_ntk_n(xloader, networks, recalbn=0, train_mode=False, num_batch=-1):
     for ntk in ntks:
         eigenvalues, _ = torch.symeig(ntk)  # ascending
         conds.append(np.nan_to_num((eigenvalues[-1] / eigenvalues[0]).item(), copy=True, nan=100000.0))
+    pdb.set_trace()
     return conds

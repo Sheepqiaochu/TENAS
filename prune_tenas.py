@@ -1,12 +1,17 @@
-import os, sys, time, argparse
+import os
+import argparse
 import math
+import pdb
 import random
-from easydict import EasyDict as edict
+import sys
+import time
+from pathlib import Path
+
 import numpy as np
 import torch
+from easydict import EasyDict as edict
 from torch import nn
 from tqdm import tqdm
-from pathlib import Path
 
 lib_dir = (Path(__file__).parent / 'lib').resolve()
 if str(lib_dir) not in sys.path: sys.path.insert(0, str(lib_dir))
@@ -17,7 +22,6 @@ from utils import get_model_infos
 from log_utils import time_string
 from models import get_cell_based_tiny_net, get_search_spaces  # , nas_super_nets
 from nas_201_api import NASBench201API as API
-from pdb import set_trace as bp
 
 INF = 1000  # used to mark prunned operators
 
@@ -78,8 +82,8 @@ def prune_func_rank(xargs, arch_parameters, model_config, model_config_thin, loa
     network_thin_origin.set_alphas(arch_parameters)
 
     alpha_active = [(nn.functional.softmax(alpha, 1) > 0.01).float() for alpha in arch_parameters]
-    prune_number = min(prune_number,
-                       alpha_active[0][0].sum() - 1)  # adjust prune_number based on current remaining ops on each edge
+    # adjust prune_number based on current remaining ops on each edge in case no edges left
+    prune_number = min(prune_number, alpha_active[0][0].sum() - 1)
     ntk_all = []  # (ntk, (edge_idx, op_idx))
     regions_all = []  # (regions, (edge_idx, op_idx))
     choice2regions = {}  # (edge_idx, op_idx): regions
@@ -210,6 +214,7 @@ def prune_func_rank_group(xargs, arch_parameters, model_config, model_config_thi
     network_origin.set_alphas(arch_parameters)
     network_thin_origin.set_alphas(arch_parameters)
 
+    pdb.set_trace()
     alpha_active = [(nn.functional.softmax(alpha, 1) > 0.01).float() for alpha in arch_parameters]
     ntk_all = []  # (ntk, (edge_idx, op_idx))
     regions_all = []  # (regions, (edge_idx, op_idx))
@@ -411,7 +416,9 @@ def main(xargs):
                                    })
     network = get_cell_based_tiny_net(model_config)
     logger.log('model-config : {:}'.format(model_config))
+    #  parameters following normal distribution(edges*types of operations)
     arch_parameters = [alpha.detach().clone() for alpha in network.get_alphas()]
+    # alpha: size-(edges,operations). the same as arch_parameters
     for alpha in arch_parameters:
         alpha[:, :] = 0
 
@@ -439,6 +446,7 @@ def main(xargs):
     epoch = -1
 
     for alpha in arch_parameters:
+        # pdb.set_trace()
         alpha[:, 0] = -INF
     arch_parameters_history.append([alpha.detach().clone() for alpha in arch_parameters])
     arch_parameters_history_npy.append([alpha.detach().clone().cpu().numpy() for alpha in arch_parameters])
