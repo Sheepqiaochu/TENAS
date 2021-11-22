@@ -21,8 +21,10 @@ from procedures import Linear_Region_Collector, get_ntk_n
 from utils import get_model_infos
 from log_utils import time_string
 from models import get_cell_based_tiny_net, get_search_spaces  # , nas_super_nets
+from models.uap import UAP
 from nas_201_api import NASBench201API as API
 
+from config_utils.data import get_data_specs
 INF = 1000  # used to mark prunned operators
 
 
@@ -51,6 +53,12 @@ def init_model(model, method='kaiming_norm_fanin'):
         model.apply(kaiming_normal_fanin_init)
     elif method == 'kaiming_norm_fanout':
         model.apply(kaiming_normal_fanout_init)
+    return model
+
+
+def load_uap(uap_path, model):
+
+
     return model
 
 
@@ -415,6 +423,15 @@ def main(xargs):
                                    'multiplier': 4,
                                    })
     network = get_cell_based_tiny_net(model_config)
+
+    num_classes, (mean, std), input_size, num_channels = get_data_specs(args.pretrained_dataset)
+    generator = UAP(shape=(input_size, input_size),
+                num_channels=num_channels,
+                mean=mean,
+                std=std,
+                use_cuda=args.use_cuda) 
+    UAP = load_uap(xargs.UAP_generator, generator)
+
     logger.log('model-config : {:}'.format(model_config))
     #  parameters following normal distribution(edges*types of operations)
     arch_parameters = [alpha.detach().clone() for alpha in network.get_alphas()]
@@ -525,6 +542,7 @@ if __name__ == '__main__':
     parser.add_argument('--timestamp', default='none', type=str, help='timestamp for logging naming')
     parser.add_argument('--init', default='kaiming_uniform', help='use gaussian init')
     parser.add_argument('--super_type', type=str, default='basic', help='type of supernet: basic or nasnet-super')
+    parser.add_argument('--UAP_generator', type=str, help='Path to UAP_generator')
     args = parser.parse_args()
     if args.rand_seed is None or args.rand_seed < 0:
         args.rand_seed = random.randint(1, 100000)

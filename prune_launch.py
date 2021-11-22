@@ -13,6 +13,8 @@ data_paths = {
     "imagenet-1k": "/data/users/yangqiancheng/datasets/imagenet-data",
 }
 
+
+# This parser is used to add specify some settings from terminal
 parser = argparse.ArgumentParser("TENAS_launch")
 parser.add_argument('--gpu', type=int,   help='use gpu with cuda number')
 parser.add_argument('--space', default='nas-bench-201', type=str, choices=['nas-bench-201', 'darts'],
@@ -46,6 +48,9 @@ elif args.space == "darts":
         batch_size = 24
 
 timestamp = "{:}".format(time.strftime('%h-%d-%C_%H-%M-%s', time.gmtime(time.time())))
+UAP_generator = '/data/users/yangqiancheng/experiment_results/UAP_generator/results/uap_peerturbation/imagenet_resnet152_123_/checkpoint.pth.tar'
+
+
 
 core_cmd = "CUDA_VISIBLE_DEVICES={gpuid} OMP_NUM_THREADS=4 python ./prune_tenas.py \
 --save_dir {save_dir} --max_nodes {max_nodes} \
@@ -62,6 +67,7 @@ core_cmd = "CUDA_VISIBLE_DEVICES={gpuid} OMP_NUM_THREADS=4 python ./prune_tenas.
 --repeat 3 \
 --batch_size {batch_size} \
 --prune_number {prune_number} \
+--UAP_generator {UAP_generator}       \
 ".format(
     gpuid=args.gpu,
     save_dir="./output/prune-{space}/{dataset}".format(space=space, dataset=args.dataset),
@@ -76,7 +82,8 @@ core_cmd = "CUDA_VISIBLE_DEVICES={gpuid} OMP_NUM_THREADS=4 python ./prune_tenas.
     precision=precision,
     init=init,
     batch_size=batch_size,
-    prune_number=prune_number
+    prune_number=prune_number,
+    UAP_generator=UAP_generator
 )
 
 os.system(core_cmd)
