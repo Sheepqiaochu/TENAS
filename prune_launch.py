@@ -9,7 +9,7 @@ TORCH_HOME = "/data/users/yangqiancheng/datasets/"
 data_paths = {
     "cifar10": "/data/users/yangqiancheng/datasets/",
     "cifar100": "/data/users/yangqiancheng/datasets/",
-    "ImageNet16-120": "/data/users/yangqiancheng/datasets/",
+    "ImageNet16-120": "/data/users/yangqiancheng/datasets/ImageNet16",
     "imagenet-1k": "/data/users/yangqiancheng/datasets/imagenet-data",
 }
 
