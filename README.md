@@ -5,6 +5,7 @@
 
 ### 2.Calculate NTK score
 * Calculate NTK score for both x and $x^\prime$
+* Calculate weighted sum of NTK(x) and NTK$\left(x^\prime\right)$
   
 
 ## Usage
@@ -15,10 +16,10 @@
 ### 1. Search
 #### [NAS-Bench-201 Space](https://openreview.net/forum?id=HJxyZkBKDr)
 ```python
-python prune_launch.py --space nas-bench-201 --dataset cifar10 --gpu 0
-python prune_launch.py --space nas-bench-201 --dataset cifar100 --gpu 0
-python prune_launch.py --space nas-bench-201 --dataset ImageNet16-120 --gpu 0
-python prune_launch.py --space nas-bench-201 --dataset imagenet-1k --gpu 0
+python prune_launch.py --space nas-bench-201 --dataset cifar10 --UAP_info 32resnet152 --gpu 0
+python prune_launch.py --space nas-bench-201 --dataset cifar100 --UAP_info 32resnet152 --gpu 0
+python prune_launch.py --space nas-bench-201 --dataset ImageNet16-120 --UAP_info 32 --gpu 0
+python prune_launch.py --space nas-bench-201 --dataset imagenet-1k --UAP_info 32resnet152 --gpu 0
 
 ```
 

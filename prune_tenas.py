@@ -21,7 +21,7 @@ from procedures import Linear_Region_Collector, get_ntk_n
 from utils import get_model_infos
 from log_utils import time_string
 from models import get_cell_based_tiny_net, get_search_spaces  # , nas_super_nets
-from models.uap import UAP
+from models import uap
 from nas_201_api import NASBench201API as API
 
 from config_utils.data import get_data_specs
@@ -57,8 +57,10 @@ def init_model(model, method='kaiming_norm_fanin'):
 
 
 def load_uap(uap_path, model):
-
-
+    uap_data = torch.load(uap_path)
+    model.load_state_dict(uap_data['state_dict'])
+    model.cuda()
+    model.eval()
     return model
 
 
@@ -76,7 +78,7 @@ def round_to(number, precision, eps=1e-8):
         return sign * round(number * 10 ** (-power), precision) * 10 ** (power)
 
 
-def prune_func_rank(xargs, arch_parameters, model_config, model_config_thin, loader, lrc_model, search_space,
+def prune_func_rank(xargs, arch_parameters, model_config, model_config_thin, loader, lrc_model, search_space,UAP,
                     precision=10, prune_number=1):
     # arch_parameters now has three dim: cell_type, edge, op
     network_origin = get_cell_based_tiny_net(model_config).cuda().train()
@@ -123,7 +125,7 @@ def prune_func_rank(xargs, arch_parameters, model_config, model_config_thin, loa
                             param.data.copy_(param_ori.data)
                         network.set_alphas(_arch_param)
                         # NTK cond TODO #########
-                        ntk_origin, ntk = get_ntk_n(loader, [network_origin, network], recalbn=0, train_mode=True,
+                        ntk_origin, ntk = get_ntk_n(loader, [network_origin, network], UAP=UAP, recalbn=0, train_mode=True,
                                                     num_batch=1)
                         # ####################
                         ntk_delta.append(
@@ -209,7 +211,7 @@ def prune_func_rank(xargs, arch_parameters, model_config, model_config_thin, loa
     return arch_parameters, choices_edges
 
 
-def prune_func_rank_group(xargs, arch_parameters, model_config, model_config_thin, loader, lrc_model, search_space,
+def prune_func_rank_group(xargs, arch_parameters, model_config, model_config_thin, loader, lrc_model, UAP, search_space,
                           edge_groups=[(0, 2), (2, 5), (5, 9), (9, 14)], num_per_group=2, precision=10):
     # arch_parameters now has three dim: cell_type, edge, op(operation)
     network_origin = get_cell_based_tiny_net(model_config).cuda().train()
@@ -222,7 +224,6 @@ def prune_func_rank_group(xargs, arch_parameters, model_config, model_config_thi
     network_origin.set_alphas(arch_parameters)
     network_thin_origin.set_alphas(arch_parameters)
 
-    pdb.set_trace()
     alpha_active = [(nn.functional.softmax(alpha, 1) > 0.01).float() for alpha in arch_parameters]
     ntk_all = []  # (ntk, (edge_idx, op_idx))
     regions_all = []  # (regions, (edge_idx, op_idx))
@@ -260,7 +261,7 @@ def prune_func_rank_group(xargs, arch_parameters, model_config, model_config_thi
                                 param.data.copy_(param_ori.data)
                             network.set_alphas(_arch_param)
                             # NTK cond TODO #########
-                            ntk_origin, ntk = get_ntk_n(loader, [network_origin, network], recalbn=0, train_mode=True,
+                            ntk_origin, ntk = get_ntk_n(loader, [network_origin, network], UAP=UAP, recalbn=0, train_mode=True,
                                                         num_batch=1)
                             # ####################
                             ntk_delta.append(round((ntk_origin - ntk) / ntk_origin, precision))
@@ -424,14 +425,13 @@ def main(xargs):
                                    })
     network = get_cell_based_tiny_net(model_config)
 
-    num_classes, (mean, std), input_size, num_channels = get_data_specs(args.pretrained_dataset)
-    generator = UAP(shape=(input_size, input_size),
+    num_classes, (mean, std), input_size, num_channels = get_data_specs(args.dataset)
+    generator = uap.UAP(shape=(input_size, input_size),
                 num_channels=num_channels,
                 mean=mean,
                 std=std,
-                use_cuda=args.use_cuda) 
-    UAP = load_uap(xargs.UAP_generator, generator)
-
+                use_cuda=True)
+    generator = load_uap(xargs.UAP_generator, generator)
     logger.log('model-config : {:}'.format(model_config))
     #  parameters following normal distribution(edges*types of operations)
     arch_parameters = [alpha.detach().clone() for alpha in network.get_alphas()]
@@ -476,7 +476,8 @@ def main(xargs):
         arch_parameters, op_pruned = prune_func_rank(xargs, arch_parameters, model_config, model_config_thin,
                                                      train_loader, lrc_model, search_space,
                                                      precision=xargs.precision,
-                                                     prune_number=xargs.prune_number
+                                                     prune_number=xargs.prune_number,
+                                                     UAP= generator
                                                      )
         # rebuild supernet
         network = get_cell_based_tiny_net(model_config)
@@ -494,7 +495,7 @@ def main(xargs):
     if xargs.search_space_name == 'darts':
         print("===>>> Prune Edge Groups...")
         arch_parameters = prune_func_rank_group(xargs, arch_parameters, model_config, model_config_thin, train_loader,
-                                                lrc_model, search_space,
+                                                lrc_model, generator, search_space,
                                                 edge_groups=[(0, 2), (2, 5), (5, 9), (9, 14)], num_per_group=2,
                                                 precision=xargs.precision,
                                                 )

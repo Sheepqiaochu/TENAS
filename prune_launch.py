@@ -13,6 +13,15 @@ data_paths = {
     "imagenet-1k": "/data/users/yangqiancheng/datasets/imagenet-data",
 }
 
+model_paths = {
+    "cifar10_resnet56": "/data/users/yangqiancheng/models/UAP/cifar10_resnet56.pth.tar",
+    "cifar10_vgg16": "/data/users/yangqiancheng/models/UAP/cifar10_vgg16.pth.tar",
+    "cifar10_vgg19":"/data/users/yangqiancheng/models/UAP/cifar10_vgg19.pth.tar",
+    "cifar100_resnet56":"/data/users/yangqiancheng/models/UAP/cifar100_resnet56.pth.tar",
+    "cifar100_vgg16": "/data/users/yangqiancheng/models/UAP/cifar109_vgg16.pth.tar",
+    "cifar100_vgg19":"/data/users/yangqiancheng/models/UAP/cifar100_vgg19.pth.tar",
+}
+
 
 # This parser is used to add specify some settings from terminal
 parser = argparse.ArgumentParser("TENAS_launch")
@@ -23,6 +32,8 @@ parser.add_argument('--dataset', default='cifar100', type=str,
                     choices=['cifar10', 'cifar100', 'ImageNet16-120', 'imagenet-1k'],
                     help='Choose between cifar10/100/ImageNet16-120/imagenet-1k')
 parser.add_argument('--seed', default=0, type=int, help='manual seed')
+parser.add_argument('--UAP_info', type=str, help='info 0of UAP models')
+
 args = parser.parse_args()
 
 # Basic Settings
@@ -47,8 +58,14 @@ elif args.space == "darts":
         prune_number = 2
         batch_size = 24
 
+# if args.UAP_info == 'cifar10_resnet56':
+#     UAP_generator = '/data/users/yangqiancheng/experiment_results/UAP_generator/results/cifar10_untargeted/2021-11-26_04:11:22_cifar10_resnet56_cifar10_123/checkpoint.pth.tar'
+# elif args.UAp_generator == 'cifar10_vgg19':
+
+
+
 timestamp = "{:}".format(time.strftime('%h-%d-%C_%H-%M-%s', time.gmtime(time.time())))
-UAP_generator = '/data/users/yangqiancheng/experiment_results/UAP_generator/results/uap_peerturbation/imagenet_resnet152_123_/checkpoint.pth.tar'
+# UAP_generator = '/data/users/yangqiancheng/models/UAP/imagenet32_resnet152.pth.tar'
 
 
 
@@ -70,7 +87,8 @@ core_cmd = "CUDA_VISIBLE_DEVICES={gpuid} OMP_NUM_THREADS=4 python ./prune_tenas.
 --UAP_generator {UAP_generator}       \
 ".format(
     gpuid=args.gpu,
-    save_dir="./output/prune-{space}/{dataset}".format(space=space, dataset=args.dataset),
+    save_dir="./output/prune-{space}/{dataset}{UAP_info}".format(space=space,\
+         dataset=args.dataset,UAP_info=args.UAP_info),
     max_nodes=4,
     data_path=data_paths[args.dataset],
     dataset=args.dataset,
@@ -83,7 +101,7 @@ core_cmd = "CUDA_VISIBLE_DEVICES={gpuid} OMP_NUM_THREADS=4 python ./prune_tenas.
     init=init,
     batch_size=batch_size,
     prune_number=prune_number,
-    UAP_generator=UAP_generator
+    UAP_generator=model_paths[args.UAP_info]
 )
 
 os.system(core_cmd)
