@@ -16,8 +16,8 @@
 ### 1. Search
 #### [NAS-Bench-201 Space](https://openreview.net/forum?id=HJxyZkBKDr)
 ```python
-python prune_launch.py --space nas-bench-201 --dataset cifar10 --UAP_info 32resnet152 --gpu 0
-python prune_launch.py --space nas-bench-201 --dataset cifar100 --UAP_info 32resnet152 --gpu 0
+python prune_launch.py --space nas-bench-201 --dataset cifar10 --UAP_inf cifar10_resnet56 --gpu 0
+python prune_launch.py --space nas-bench-201 --dataset cifar100 --UAP_info cifar100_resnet56--gpu 0
 python prune_launch.py --space nas-bench-201 --dataset ImageNet16-120 --UAP_info 32 --gpu 0
 python prune_launch.py --space nas-bench-201 --dataset imagenet-1k --UAP_info 32resnet152 --gpu 0
 

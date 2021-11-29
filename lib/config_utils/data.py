@@ -13,14 +13,14 @@ def get_data_specs(pretrained_dataset):
         input_size = 32
         num_channels = 3
     elif pretrained_dataset == "cifar10":
-        mean = [0., 0., 0.]
-        std = [1., 1., 1.]
+        mean = [x / 255 for x in [125.3, 123.0, 113.9]]
+        std = [x / 255 for x in [63.0, 62.1, 66.7]]
         num_classes = 10
         input_size = 32
         num_channels = 3
     elif pretrained_dataset == "cifar100":
-        mean = [0., 0., 0.]
-        std = [1., 1., 1.]
+        mean = [x / 255 for x in [129.3, 124.1, 112.4]]
+        std = [x / 255 for x in [68.2, 65.4, 70.4]]
         num_classes = 100
         input_size = 32
         num_channels = 3

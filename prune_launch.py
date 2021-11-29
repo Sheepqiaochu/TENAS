@@ -18,7 +18,7 @@ model_paths = {
     "cifar10_vgg16": "/data/users/yangqiancheng/models/UAP/cifar10_vgg16.pth.tar",
     "cifar10_vgg19":"/data/users/yangqiancheng/models/UAP/cifar10_vgg19.pth.tar",
     "cifar100_resnet56":"/data/users/yangqiancheng/models/UAP/cifar100_resnet56.pth.tar",
-    "cifar100_vgg16": "/data/users/yangqiancheng/models/UAP/cifar109_vgg16.pth.tar",
+    "cifar100_vgg16": "/data/users/yangqiancheng/models/UAP/cifar100_vgg16.pth.tar",
     "cifar100_vgg19":"/data/users/yangqiancheng/models/UAP/cifar100_vgg19.pth.tar",
 }
 
@@ -87,8 +87,8 @@ core_cmd = "CUDA_VISIBLE_DEVICES={gpuid} OMP_NUM_THREADS=4 python ./prune_tenas.
 --UAP_generator {UAP_generator}       \
 ".format(
     gpuid=args.gpu,
-    save_dir="./output/prune-{space}/{dataset}{UAP_info}".format(space=space,\
-         dataset=args.dataset,UAP_info=args.UAP_info),
+    save_dir="./output/prune-{space}/{UAP_info}".format(space=space,\
+         UAP_info=args.UAP_info),
     max_nodes=4,
     data_path=data_paths[args.dataset],
     dataset=args.dataset,
